@@ -1,0 +1,82 @@
+# ===============================
+# Node.js / Express 基本設定
+# ===============================
+
+# Node modules
+node_modules/
+
+# Dependency lock / local environment files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.*.local
+
+# Compiled source
+dist/
+build/
+coverage/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# ===============================
+# Cloud Run / GCP 関連
+# ===============================
+
+# Service Account keys
+*.json
+!package*.json   # except package.json, package-lock.json
+
+# Local GCP config
+.gcloud/
+.gcp/
+.cloud/
+.cloudbuild/
+terraform.tfstate
+terraform.tfstate.backup
+
+# Docker
+*.tar
+*.img
+*.pid
+*.seed
+*.swp
+docker-compose.override.yml
+
+# ===============================
+# IDE / Editor 関連
+# ===============================
+
+# VSCode
+.vscode/
+.history/
+
+# IntelliJ / WebStorm / JetBrains
+.idea/
+*.iml
+
+# Mac system
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# ===============================
+# mabl 関連（CLI / ローカル実行）
+# ===============================
+
+# mabl CLI session files
+.mabl/
+mabl_results/
+mabl_output/
+mabl_cache/
+mabl_test_logs/
+
+# mabl credentials
+.mabl.json
+mabl_credentials.json
