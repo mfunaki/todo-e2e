@@ -2,7 +2,7 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <title>ToDo登録ページ（未実装）</title>
+    <title>ToDo登録ページ</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -10,11 +10,30 @@
   </head>
   <body class="p-4 bg-light">
     <div class="container">
-      <h1 class="text-success mb-3">📝 ToDo登録ページ（未実装）</h1>
+      <h1 class="text-success mb-3">📝 ToDo登録ページ</h1>
+
       <p class="text-muted">
-        このページにはToDo登録フォームが実装される予定です。
+        新しいToDoを登録してください。登録後は一覧ページに戻ります。
       </p>
-      <a href="/" class="btn btn-secondary">一覧ページへ戻る</a>
+
+      <!-- 登録フォーム -->
+      <form action="/todos" method="POST" class="card card-body shadow-sm p-4">
+        <div class="mb-3">
+          <label for="title" class="form-label fw-bold">ToDo内容</label>
+          <input
+            type="text"
+            id="title"
+            name="title"
+            class="form-control"
+            placeholder="例：週報の提出"
+            required
+          />
+        </div>
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-primary">登録</button>
+          <a href="/" class="btn btn-secondary">一覧ページへ戻る</a>
+        </div>
+      </form>
     </div>
   </body>
 </html>

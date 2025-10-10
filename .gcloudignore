@@ -1,0 +1,68 @@
+# This file specifies files that are *not* uploaded to Google Cloud
+# using gcloud. It follows the same syntax as .gitignore, with the addition of
+# "#!include" directives (which insert the entries of the given .gitignore-style
+# file at that point).
+
+# Git関連ファイルは除外
+.git
+.gitignore
+
+# Node modules（本番環境で再インストールするため）
+node_modules/
+
+# ログファイル
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+logs/
+
+# 環境変数ファイル
+.env
+.env.*.local
+
+# ビルド/コンパイル出力
+dist/
+build/
+coverage/
+
+# システムファイル
+.DS_Store
+Thumbs.db
+
+# IDE/エディタ関連
+.vscode/
+.history/
+.idea/
+*.iml
+
+# GCPサービスアカウントキー（package.json以外のJSONファイル）
+# package.json と package-lock.json は明示的に含める必要があるため、
+# *.json のワイルドカードは使わず個別に指定
+terraform.tfstate
+terraform.tfstate.backup
+.gcloud/
+.gcp/
+.cloud/
+.cloudbuild/
+
+# Docker関連
+*.tar
+*.img
+*.pid
+*.seed
+*.swp
+docker-compose.override.yml
+
+# mabl関連
+.mabl/
+mabl_results/
+mabl_output/
+mabl_cache/
+mabl_test_logs/
+.mabl.json
+mabl_credentials.json
+
+# package.json と package-lock.json は明示的に含める（コメントアウトで示すため記載なし）
+# !package.json
+# !package-lock.json
