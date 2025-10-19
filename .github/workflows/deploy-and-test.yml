@@ -76,36 +76,24 @@ jobs:
         curl -f ${{ steps.get-url.outputs.SERVICE_URL }} || exit 1
 
     - name: Run mabl tests
-      env:
-        MABL_APPLICATION_KEY: ${{ secrets.MABL_APPLICATION_KEY }}
-        SERVICE_URL: ${{ steps.get-url.outputs.SERVICE_URL }}
-      run: |
-        echo "Running mabl tests against: $SERVICE_URL"
-        
-        # mabl CLIを使用してテストを実行
-        # 注意: 実際のmablのテスト実行方法は、mablの設定に依存します
-        
-        # 例: mabl test runコマンド（実際のコマンドはmablの設定に応じて調整が必要）
-        # mabl test run \
-        #   --application-key $MABL_APPLICATION_KEY \
-        #   --environment-url $SERVICE_URL \
-        #   --wait-for-completion
-        
-        # 現在は仮のテスト結果として成功を返す
-        # 実際の実装では、mablのAPIを使用してテストを実行し、結果を確認する
-        echo "mabl tests completed successfully"
-        
-        # テスト結果をファイルに保存
-        echo "SUCCESS" > test-result.txt
+      uses: mablhq/github-action-mabl-cli@v1
+      with:
+        mabl_api_key: ${{ secrets.MABL_API_KEY }}
+        application_id: ${{ secrets.MABL_APPLICATION_ID }}
+        environment_id: ${{ secrets.MABL_ENVIRONMENT_ID }}
+        plan_labels: ${{ secrets.MABL_PLAN_LABELS }}
+        # デプロイされたサービスのURLを環境変数として設定
+        environment_url: ${{ steps.get-url.outputs.SERVICE_URL }}
+        # テスト実行の完了を待つ
+        wait_for_completion: true
+        # テスト結果の出力
+        output_format: json
 
     - name: Check test results
       run: |
-        if [ "$(cat test-result.txt)" = "SUCCESS" ]; then
-          echo "All tests passed!"
-        else
-          echo "Tests failed!"
-          exit 1
-        fi
+        echo "mabl tests completed"
+        echo "Test results are handled by the mabl GitHub Action"
+        echo "If this step runs, it means tests passed successfully"
 
     - name: Auto-merge to main (if tests pass and not on main branch)
       if: github.ref != 'refs/heads/main' && github.event_name == 'push'

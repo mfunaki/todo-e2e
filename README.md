@@ -29,7 +29,10 @@ GitHubリポジトリのSettings > Secrets and variables > Actionsで以下のSe
 - `GCP_SA_KEY`: Google Cloud サービスアカウントのJSONキー
 
 #### mabl関連
-- `MABL_APPLICATION_KEY`: mablのアプリケーションキー
+- `MABL_API_KEY`: mablのAPIキー（CI/CD integration用）
+- `MABL_APPLICATION_ID`: mablのアプリケーションID
+- `MABL_ENVIRONMENT_ID`: mablの環境ID
+- `MABL_PLAN_LABELS`: 実行するテストプランのラベル
 
 ### Google Cloud セットアップ
 
@@ -70,15 +73,20 @@ Google Cloudサービスアカウントには以下の権限が必要です：
 
 ### mablテストの設定
 
-現在のワークフローでは、mablテストの実行部分がコメントアウトされています。
-実際のmablの設定に応じて、以下の部分を調整してください：
+このワークフローでは、mabl公式のGitHub Actionを使用してテストを実行します。
 
-```yaml
-# mabl test run \
-#   --application-key $MABL_APPLICATION_KEY \
-#   --environment-url $SERVICE_URL \
-#   --wait-for-completion
-```
+#### mablでの設定手順
+1. **APIキーの作成**: mablワークスペースで「CI/CD integration」用のAPIキーを作成
+2. **アプリケーションの設定**: テスト対象のアプリケーションをmablで設定
+3. **環境の設定**: テスト環境（デプロイされたサービスのURL）を設定
+4. **テストプランの作成**: 実行したいテストプランを作成し、ラベルを設定
+
+#### GitHub Secretsの設定
+以下のSecretsをGitHubリポジトリに設定してください：
+- `MABL_API_KEY`: mablで作成したAPIキー
+- `MABL_APPLICATION_ID`: mablのアプリケーションID
+- `MABL_ENVIRONMENT_ID`: mablの環境ID  
+- `MABL_PLAN_LABELS`: 実行するテストプランのラベル（例: "smoke-tests"）
 
 ## ローカル開発
 
