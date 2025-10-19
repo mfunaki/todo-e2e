@@ -31,15 +31,33 @@ GitHubリポジトリのSettings > Secrets and variables > Actionsで以下のSe
 #### mabl関連
 - `MABL_APPLICATION_KEY`: mablのアプリケーションキー
 
-### サービスアカウントの権限
+### Google Cloud セットアップ
+
+#### 1. 必要なAPIの有効化
+プロジェクトオーナー権限でGoogle Cloud Consoleにアクセスし、以下のAPIを有効化してください：
+
+- **Cloud Resource Manager API**
+- **Cloud Run API**
+- **Artifact Registry API**
+- **Container Registry API**
+
+#### 2. Artifact Registryリポジトリの作成
+```bash
+gcloud artifacts repositories create todo-e2e-repo \
+    --repository-format=docker \
+    --location=asia-northeast1 \
+    --description="Docker repository for todo-e2e app"
+```
+
+#### 3. サービスアカウントの権限
 
 Google Cloudサービスアカウントには以下の権限が必要です：
 
 ```bash
 # 必要なロール
-- Cloud Run Admin
-- Storage Admin (Container Registry用)
-- Service Account User
+- Cloud Run Admin (roles/run.admin)
+- Service Account User (roles/iam.serviceAccountUser)
+- Artifact Registry Writer (roles/artifactregistry.writer)
 ```
 
 ### ワークフローの動作
