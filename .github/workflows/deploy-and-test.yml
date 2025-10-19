@@ -76,21 +76,29 @@ jobs:
         curl -f ${{ steps.get-url.outputs.SERVICE_URL }} || exit 1
 
     - name: Run mabl tests
-      uses: mablhq/github-action-mabl-cli@v1
+      id: mabl-test-deployment
+      uses: mablhq/github-run-tests-action@v1
+      env:
+        # Use a "CI/CD Integration" type of mabl API key
+        MABL_API_KEY: ${{ secrets.MABL_API_KEY }}
       with:
-        api-key: ${{ secrets.MABL_API_KEY }}
-        application-id: ${{ secrets.MABL_APPLICATION_ID }}
-        environment-id: ${{ secrets.MABL_ENVIRONMENT_ID }}
-        plan-labels: ${{ secrets.MABL_PLAN_LABELS }}
-        # デプロイされたサービスのURLを環境変数として設定
-        environment-url: ${{ steps.get-url.outputs.SERVICE_URL }}
-        # テスト実行の完了を待つ
-        wait-for-completion: true
+        application-id: ${{ vars.MABL_APPLICATION_ID }}
+        environment-id: ${{ vars.MABL_ENVIRONMENT_ID }}
+        app-url: ${{ steps.get-url.outputs.SERVICE_URL }}
+        plan-labels: ${{ vars.MABL_PLAN_LABELS }}
+        # テスト失敗時にワークフローを継続しない
+        continue-on-failure: false
 
     - name: Check test results
       run: |
         echo "mabl tests completed"
-        echo "Test results are handled by the mabl GitHub Action"
+        echo "Deployment ID: ${{ steps.mabl-test-deployment.outputs.mabl-deployment-id }}"
+        echo "Plans run: ${{ steps.mabl-test-deployment.outputs.plans_run }}"
+        echo "Plans passed: ${{ steps.mabl-test-deployment.outputs.plans_passed }}"
+        echo "Plans failed: ${{ steps.mabl-test-deployment.outputs.plans_failed }}"
+        echo "Tests run: ${{ steps.mabl-test-deployment.outputs.tests_run }}"
+        echo "Tests passed: ${{ steps.mabl-test-deployment.outputs.tests_passed }}"
+        echo "Tests failed: ${{ steps.mabl-test-deployment.outputs.tests_failed }}"
         echo "If this step runs, it means tests passed successfully"
 
     - name: Auto-merge to main (if tests pass and not on main branch)
