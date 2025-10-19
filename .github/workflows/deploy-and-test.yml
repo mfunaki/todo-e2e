@@ -78,16 +78,14 @@ jobs:
     - name: Run mabl tests
       uses: mablhq/github-action-mabl-cli@v1
       with:
-        mabl_api_key: ${{ secrets.MABL_API_KEY }}
-        application_id: ${{ secrets.MABL_APPLICATION_ID }}
-        environment_id: ${{ secrets.MABL_ENVIRONMENT_ID }}
-        plan_labels: ${{ secrets.MABL_PLAN_LABELS }}
+        api-key: ${{ secrets.MABL_API_KEY }}
+        application-id: ${{ secrets.MABL_APPLICATION_ID }}
+        environment-id: ${{ secrets.MABL_ENVIRONMENT_ID }}
+        plan-labels: ${{ secrets.MABL_PLAN_LABELS }}
         # デプロイされたサービスのURLを環境変数として設定
-        environment_url: ${{ steps.get-url.outputs.SERVICE_URL }}
+        environment-url: ${{ steps.get-url.outputs.SERVICE_URL }}
         # テスト実行の完了を待つ
-        wait_for_completion: true
-        # テスト結果の出力
-        output_format: json
+        wait-for-completion: true
 
     - name: Check test results
       run: |
