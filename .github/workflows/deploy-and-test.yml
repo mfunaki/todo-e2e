@@ -25,6 +25,20 @@ jobs:
         node-version: '20'
         cache: 'npm'
 
+    - name: Verify files
+      run: |
+        echo "Current directory: $(pwd)"
+        echo "Files in directory:"
+        ls -la
+        echo "Checking package.json:"
+        if [ -f package.json ]; then
+          echo "package.json exists"
+          cat package.json
+        else
+          echo "package.json not found"
+          exit 1
+        fi
+
     - name: Install dependencies
       run: npm ci
 
