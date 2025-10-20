@@ -65,6 +65,20 @@ jobs:
         if: ${{ env.HAS_GCP_SA_KEY == 'true' }}
         run: gcloud auth configure-docker $REGION-docker.pkg.dev
 
+      - name: Create Artifact Registry repository if not exists
+        if: ${{ env.HAS_GCP_SA_KEY == 'true' }}
+        run: |
+          # リポジトリが存在するかチェック
+          if ! gcloud artifacts repositories describe $SERVICE_NAME-repo --location=$REGION >/dev/null 2>&1; then
+            echo "Creating Artifact Registry repository..."
+            gcloud artifacts repositories create $SERVICE_NAME-repo \
+              --repository-format=docker \
+              --location=$REGION \
+              --description="Docker repository for $SERVICE_NAME"
+          else
+            echo "Repository $SERVICE_NAME-repo already exists"
+          fi
+
       - name: Build Docker image
         if: ${{ env.HAS_GCP_SA_KEY == 'true' }}
         run: |
