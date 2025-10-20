@@ -9,6 +9,7 @@ on:
 jobs:
   deploy-and-test:
     runs-on: ubuntu-latest
+    environment: e2e-testing
 
     # secretsや定数はjob.envで束ねる（workflow直下envでsecretsは不可）
     env:
@@ -16,7 +17,7 @@ jobs:
       SERVICE_NAME: todo-e2e
       REGION: asia-northeast1
 
-      # secretsの“有無”をブール文字列化 → step if: はenvを見る
+      # secretsの"有無"をブール文字列化 → step if: はenvを見る
       HAS_GCP_SA_KEY: ${{ secrets.GCP_SA_KEY != '' && 'true' || 'false' }}
       HAS_GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID != '' && 'true' || 'false' }}
       HAS_MABL_API_KEY: ${{ secrets.MABL_API_KEY != '' && 'true' || 'false' }}
