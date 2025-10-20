@@ -46,19 +46,22 @@ jobs:
       run: |
         echo "Checking if secrets are available..."
         if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
-          echo "ERROR: GCP_SA_KEY secret is not available"
-          exit 1
+          echo "WARNING: GCP_SA_KEY secret is not available"
+          echo "Please set up the following secrets in your GitHub repository:"
+          echo "- GCP_SA_KEY: Google Cloud service account JSON key"
+          echo "- GCP_PROJECT_ID: Google Cloud project ID"
+          echo "Skipping Google Cloud deployment for now..."
         else
           echo "GCP_SA_KEY secret is available"
         fi
         if [ -z "${{ secrets.GCP_PROJECT_ID }}" ]; then
-          echo "ERROR: GCP_PROJECT_ID secret is not available"
-          exit 1
+          echo "WARNING: GCP_PROJECT_ID secret is not available"
         else
           echo "GCP_PROJECT_ID secret is available"
         fi
 
     - name: Authenticate to Google Cloud
+      if: secrets.GCP_SA_KEY != ''
       uses: google-github-actions/auth@v2
       with:
         credentials_json: ${{ secrets.GCP_SA_KEY }}
@@ -66,22 +69,27 @@ jobs:
         GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
 
     - name: Set up Cloud SDK
+      if: secrets.GCP_SA_KEY != ''
       uses: google-github-actions/setup-gcloud@v2
 
     - name: Configure Docker to use gcloud as a credential helper
+      if: secrets.GCP_SA_KEY != ''
       run: gcloud auth configure-docker $REGION-docker.pkg.dev
 
     - name: Build Docker image
+      if: secrets.GCP_SA_KEY != ''
       run: |
         docker build -t $REGION-docker.pkg.dev/$PROJECT_ID/$SERVICE_NAME-repo/$SERVICE_NAME:$GITHUB_SHA .
         docker tag $REGION-docker.pkg.dev/$PROJECT_ID/$SERVICE_NAME-repo/$SERVICE_NAME:$GITHUB_SHA $REGION-docker.pkg.dev/$PROJECT_ID/$SERVICE_NAME-repo/$SERVICE_NAME:latest
 
     - name: Push Docker image
+      if: secrets.GCP_SA_KEY != ''
       run: |
         docker push $REGION-docker.pkg.dev/$PROJECT_ID/$SERVICE_NAME-repo/$SERVICE_NAME:$GITHUB_SHA
         docker push $REGION-docker.pkg.dev/$PROJECT_ID/$SERVICE_NAME-repo/$SERVICE_NAME:latest
 
     - name: Deploy to Cloud Run
+      if: secrets.GCP_SA_KEY != ''
       run: |
         gcloud run deploy $SERVICE_NAME \
           --image $REGION-docker.pkg.dev/$PROJECT_ID/$SERVICE_NAME-repo/$SERVICE_NAME:$GITHUB_SHA \
@@ -95,6 +103,7 @@ jobs:
           --max-instances 10
 
     - name: Get Cloud Run URL
+      if: secrets.GCP_SA_KEY != ''
       id: get-url
       run: |
         SERVICE_URL=$(gcloud run services describe $SERVICE_NAME --platform managed --region $REGION --format 'value(status.url)')
@@ -102,12 +111,14 @@ jobs:
         echo "Deployed service URL: $SERVICE_URL"
 
     - name: Wait for service to be ready
+      if: secrets.GCP_SA_KEY != ''
       run: |
         echo "Waiting for service to be ready..."
         sleep 30
         curl -f ${{ steps.get-url.outputs.SERVICE_URL }} || exit 1
 
     - name: Run mabl tests
+      if: secrets.GCP_SA_KEY != '' && secrets.MABL_API_KEY != ''
       id: mabl-test-deployment
       uses: mablhq/github-run-tests-action@v1
       env:
