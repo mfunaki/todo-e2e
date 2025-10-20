@@ -10,9 +10,9 @@ npm-debug.log*
 .env.production.local
 
 # Google Cloud credentials
-*.json
 service-account-*.json
 gcp-*.json
+# Note: package-lock.json is intentionally not ignored
 
 # Setup scripts with sensitive data
 setup-apis.sh
