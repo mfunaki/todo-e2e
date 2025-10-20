@@ -10,11 +10,16 @@ jobs:
   deploy-and-test:
     runs-on: ubuntu-latest
 
-    # ← ここで secrets を env に束ねる（workflow 直下では不可）
+    # secretsや定数はjob.envで束ねる（workflow直下envでsecretsは不可）
     env:
       PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
       SERVICE_NAME: todo-e2e
       REGION: asia-northeast1
+
+      # secretsの“有無”をブール文字列化 → step if: はenvを見る
+      HAS_GCP_SA_KEY: ${{ secrets.GCP_SA_KEY != '' && 'true' || 'false' }}
+      HAS_GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID != '' && 'true' || 'false' }}
+      HAS_MABL_API_KEY: ${{ secrets.MABL_API_KEY != '' && 'true' || 'false' }}
 
     steps:
       - name: Checkout code
@@ -29,15 +34,11 @@ jobs:
       - name: Verify files
         run: |
           echo "Current directory: $(pwd)"
-          echo "Files in directory:"
           ls -la
-          echo "Checking package.json:"
           if [ -f package.json ]; then
-            echo "package.json exists"
-            cat package.json
+            echo "package.json exists"; cat package.json
           else
-            echo "package.json not found"
-            exit 1
+            echo "package.json not found"; exit 1
           fi
 
       - name: Install dependencies
@@ -45,52 +46,39 @@ jobs:
 
       - name: Check secrets availability
         run: |
-          echo "Checking if secrets are available..."
-          if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
-            echo "WARNING: GCP_SA_KEY secret is not available"
-            echo "Please set up the following secrets in your GitHub repository:"
-            echo "- GCP_SA_KEY: Google Cloud service account JSON key"
-            echo "- GCP_PROJECT_ID: Google Cloud project ID"
-            echo "Skipping Google Cloud deployment for now..."
-          else
-            echo "GCP_SA_KEY secret is available"
-          fi
-          if [ -z "${{ secrets.GCP_PROJECT_ID }}" ]; then
-            echo "WARNING: GCP_PROJECT_ID secret is not available"
-          else
-            echo "GCP_PROJECT_ID secret is available"
-          fi
+          echo "HAS_GCP_SA_KEY=$HAS_GCP_SA_KEY"
+          echo "HAS_GCP_PROJECT_ID=$HAS_GCP_PROJECT_ID"
+          echo "HAS_MABL_API_KEY=$HAS_MABL_API_KEY"
 
-      # ▼ 以降の if は必ず ${{ }} でラップ＆空文字チェック
       - name: Authenticate to Google Cloud
-        if: ${{ secrets.GCP_SA_KEY != '' }}
+        if: ${{ env.HAS_GCP_SA_KEY == 'true' }}
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
       - name: Set up Cloud SDK
-        if: ${{ secrets.GCP_SA_KEY != '' }}
+        if: ${{ env.HAS_GCP_SA_KEY == 'true' }}
         uses: google-github-actions/setup-gcloud@v2
 
       - name: Configure Docker to use gcloud as a credential helper
-        if: ${{ secrets.GCP_SA_KEY != '' }}
+        if: ${{ env.HAS_GCP_SA_KEY == 'true' }}
         run: gcloud auth configure-docker $REGION-docker.pkg.dev
 
       - name: Build Docker image
-        if: ${{ secrets.GCP_SA_KEY != '' }}
+        if: ${{ env.HAS_GCP_SA_KEY == 'true' }}
         run: |
           docker build -t $REGION-docker.pkg.dev/$PROJECT_ID/$SERVICE_NAME-repo/$SERVICE_NAME:$GITHUB_SHA .
           docker tag  $REGION-docker.pkg.dev/$PROJECT_ID/$SERVICE_NAME-repo/$SERVICE_NAME:$GITHUB_SHA \
                       $REGION-docker.pkg.dev/$PROJECT_ID/$SERVICE_NAME-repo/$SERVICE_NAME:latest
 
       - name: Push Docker image
-        if: ${{ secrets.GCP_SA_KEY != '' }}
+        if: ${{ env.HAS_GCP_SA_KEY == 'true' }}
         run: |
           docker push $REGION-docker.pkg.dev/$PROJECT_ID/$SERVICE_NAME-repo/$SERVICE_NAME:$GITHUB_SHA
           docker push $REGION-docker.pkg.dev/$PROJECT_ID/$SERVICE_NAME-repo/$SERVICE_NAME:latest
 
       - name: Deploy to Cloud Run
-        if: ${{ secrets.GCP_SA_KEY != '' }}
+        if: ${{ env.HAS_GCP_SA_KEY == 'true' }}
         run: |
           gcloud run deploy $SERVICE_NAME \
             --image $REGION-docker.pkg.dev/$PROJECT_ID/$SERVICE_NAME-repo/$SERVICE_NAME:$GITHUB_SHA \
@@ -104,7 +92,7 @@ jobs:
             --max-instances 10
 
       - name: Get Cloud Run URL
-        if: ${{ secrets.GCP_SA_KEY != '' }}
+        if: ${{ env.HAS_GCP_SA_KEY == 'true' }}
         id: get-url
         run: |
           SERVICE_URL=$(gcloud run services describe $SERVICE_NAME --platform managed --region $REGION --format 'value(status.url)')
@@ -112,19 +100,18 @@ jobs:
           echo "Deployed service URL: $SERVICE_URL"
 
       - name: Wait for service to be ready
-        if: ${{ secrets.GCP_SA_KEY != '' }}
+        if: ${{ env.HAS_GCP_SA_KEY == 'true' }}
         run: |
           echo "Waiting for service to be ready..."
           sleep 30
           curl -f ${{ steps.get-url.outputs.SERVICE_URL }} || exit 1
 
       - name: Run mabl tests
-        if: ${{ secrets.GCP_SA_KEY != '' && secrets.MABL_API_KEY != '' }}
+        if: ${{ env.HAS_GCP_SA_KEY == 'true' && env.HAS_MABL_API_KEY == 'true' }}
         id: mabl-test-deployment
         uses: mablhq/github-run-tests-action@v1
         env:
-          # Use a "CI/CD Integration" type of mabl API key
-          MABL_API_KEY: ${{ secrets.MABL_API_KEY }}
+          MABL_API_KEY: ${{ secrets.MABL_API_KEY }}   # 実値はここでだけ使用
         with:
           application-id: ${{ vars.MABL_APPLICATION_ID }}
           environment-id: ${{ vars.MABL_ENVIRONMENT_ID }}
@@ -142,50 +129,3 @@ jobs:
           echo "Tests run: ${{ steps.mabl-test-deployment.outputs.tests_run }}"
           echo "Tests passed: ${{ steps.mabl-test-deployment.outputs.tests_passed }}"
           echo "Tests failed: ${{ steps.mabl-test-deployment.outputs.tests_failed }}"
-          echo "If this step runs, it means tests passed successfully"
-
-      - name: Auto-merge to main (if tests pass and not on main branch)
-        if: ${{ github.ref != 'refs/heads/main' && github.event_name == 'push' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "Tests passed! Auto-merging to main branch..."
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git fetch origin main
-          git checkout main
-          git pull origin main
-          git merge origin/${{ github.ref_name }} --no-ff -m "Auto-merge from ${{ github.ref_name }}: Tests passed"
-          git push origin main
-          echo "Successfully merged ${{ github.ref_name }} to main"
-
-      - name: Create Pull Request (if on PR)
-        if: ${{ github.event_name == 'pull_request' && github.ref != 'refs/heads/main' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "Pull request tests completed successfully"
-          echo "Ready for manual review and merge"
-
-      - name: Comment on PR with deployment info
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/github-script@v7
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `🚀 **Deployment successful!**
-              
-              **Service URL:** ${{ steps.get-url.outputs.SERVICE_URL }}
-              **Tests:** ✅ All mabl tests passed
-              
-              This PR is ready for review and merge.`
-            })
-
-      - name: Cleanup on failure
-        if: ${{ failure() }}
-        run: |
-          echo "Deployment or tests failed. Cleaning up..."
-          # gcloud run services delete $SERVICE_NAME --platform managed --region $REGION --quiet || true
