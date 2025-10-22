@@ -4,27 +4,14 @@ const app = express();
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 
-// 一覧ページ
-app.get("/", (req, res) => {
-  res.render("index");
-});
+// 各ページ
+app.get("/", (req, res) => res.render("index"));
+app.get("/new", (req, res) => res.render("new"));
+app.get("/edit", (req, res) => res.render("edit"));
+app.get("/delete", (req, res) => res.render("delete"));
 
-// 登録ページ
-app.get("/new", (req, res) => {
-  res.render("new");
-});
-
-// 更新ページ
-app.get("/edit", (req, res) => {
-  res.render("edit");
-});
-
-// 削除ページ
-app.get("/delete", (req, res) => {
-  res.render("delete");
-});
-
-// サーバ起動
-app.listen(3000, () => {
-  console.log("🚀 mabl ToDo Skeleton running at http://localhost:3000");
+// Cloud RunではPORT環境変数を使用
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
