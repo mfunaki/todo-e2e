@@ -2,8 +2,7 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ToDo削除確認</title>
+    <title>ToDo削除ページ（未実装）</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -11,47 +10,11 @@
   </head>
   <body class="p-4 bg-light">
     <div class="container">
-      <h1 class="text-danger mb-4">🗑️ ToDo削除確認</h1>
-      
-      <div class="card border-danger">
-        <div class="card-body">
-          <div class="alert alert-danger">
-            <h5 class="alert-heading">⚠️ 本当に削除しますか？</h5>
-            <p class="mb-0">この操作は取り消せません。</p>
-          </div>
-
-          <div class="mb-4">
-            <h5 class="card-title">削除対象のToDo</h5>
-            <div class="card bg-light">
-              <div class="card-body">
-                <h6 class="card-subtitle mb-2 text-muted">タイトル</h6>
-                <p class="card-text"><strong><%= todo.title %></strong></p>
-                
-                <% if (todo.description) { %>
-                  <h6 class="card-subtitle mb-2 text-muted mt-3">詳細</h6>
-                  <p class="card-text"><%= todo.description %></p>
-                <% } %>
-                
-                <h6 class="card-subtitle mb-2 text-muted mt-3">状態</h6>
-                <p class="card-text">
-                  <%= todo.completed ? '✅ 完了' : '⏳ 未完了' %>
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <form action="/destroy/<%= todo.id %>" method="POST" class="d-inline">
-            <div class="d-flex gap-2">
-              <button type="submit" class="btn btn-danger">
-                🗑️ 削除する
-              </button>
-              <a href="/" class="btn btn-secondary">
-                ⬅️ キャンセル
-              </a>
-            </div>
-          </form>
-        </div>
-      </div>
+      <h1 class="text-danger mb-3">🗑️ ToDo削除ページ（未実装）</h1>
+      <p class="text-muted">
+        このページではToDo削除確認画面を今後追加予定です。
+      </p>
+      <a href="/" class="btn btn-secondary">一覧ページへ戻る</a>
     </div>
   </body>
 </html>
