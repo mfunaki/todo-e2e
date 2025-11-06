@@ -40,3 +40,6 @@ coverage/
 # OS
 .DS_Store
 Thumbs.db
+
+# mabl local runner
+.http-mitm-proxy/
