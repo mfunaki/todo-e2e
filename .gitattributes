@@ -1,0 +1,87 @@
+# デフォルトの挙動 (Gitに判断させる)
+* text=auto
+
+# ---------------------------------------------------
+# Linux/Docker/CI で実行・解析されるファイルは
+# Windows上でも強制的に LF (eol=lf) にする
+# ---------------------------------------------------
+
+# シェルスクリプト (最重要)
+*.sh        text eol=lf
+*.bash      text eol=lf
+*.zsh       text eol=lf
+
+# Docker関連
+Dockerfile  text eol=lf
+Containerfile text eol=lf
+.dockerignore text eol=lf
+
+# YAMLファイル (Docker Compose, k8s, CI/CD, configs)
+*.yml       text eol=lf
+*.yaml      text eol=lf
+
+# 設定ファイル・コード類
+*.json      text eol=lf
+*.toml      text eol=lf
+*.md        text eol=lf
+*.js        text eol=lf
+*.ts        text eol=lf
+*.ejs       text eol=lf
+*.py        text eol=lf
+*.dart      text eol=lf
+*.jsx       text eol=lf
+*.tsx       text eol=lf
+*.css       text eol=lf
+*.scss      text eol=lf
+*.sass      text eol=lf
+*.less      text eol=lf
+*.html      text eol=lf
+*.htm       text eol=lf
+*.xml       text eol=lf
+*.svg       text eol=lf
+
+# Node.js/npm関連
+package.json      text eol=lf
+package-lock.json text eol=lf
+.npmrc            text eol=lf
+.nvmrc            text eol=lf
+
+# 設定ファイル
+.env              text eol=lf
+.env.*            text eol=lf
+.gitignore        text eol=lf
+.gitattributes    text eol=lf
+.editorconfig     text eol=lf
+.eslintrc*        text eol=lf
+.prettierrc*      text eol=lf
+tsconfig*.json    text eol=lf
+
+# その他テキストファイル
+*.txt       text eol=lf
+*.log       text eol=lf
+LICENSE     text eol=lf
+README      text eol=lf
+Makefile    text eol=lf
+
+# ---------------------------------------------------
+# バイナリファイル (念のため明示)
+# ---------------------------------------------------
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.jar binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.otf binary
+*.zip binary
+*.tar binary
+*.gz binary
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
