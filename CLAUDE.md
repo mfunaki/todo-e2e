@@ -34,6 +34,16 @@ npx playwright test --ui                      # UIモード
 npx playwright test --debug                   # デバッグモード
 ```
 
+推奨 `playwright.config.ts` 設定:
+```ts
+export default {
+  testDir: './tests',
+  use: {
+    baseURL: process.env.URL || 'https://todo-e2e-852080299306.asia-northeast1.run.app',
+  },
+};
+```
+
 ## アーキテクチャ
 
 ```
@@ -49,10 +59,22 @@ tests/          - mablからエクスポートされたPlaywrightテスト
 - `/edit` - 更新ページ
 - `/delete` - 削除ページ
 
+### ビュー（views/*.ejs）
+
+すべて Bootstrap 5 CDN を利用した静的テンプレート（未実装プレースホルダ）。
+
+- `views/index.ejs` - タイトル「ToDo一覧ページ（未実装）」。`/new`, `/edit`, `/delete` へのナビゲーションボタンあり。
+- `views/new.ejs` - タイトル「ToDo登録ページ（未実装）」。`/` への戻りリンクあり。
+- `views/edit.ejs` - タイトル「ToDo更新ページ（未実装）」。`/` への戻りリンクあり。
+- `views/delete.ejs` - タイトル「ToDo削除ページ（未実装）」。`/` への戻りリンクあり。
+
+mablテストでの検証対象: ページ遷移（リンククリック）、タイトルやテキスト内容、ボタン表示。
+
 ## 環境変数
 
 - `PORT` - アプリケーションポート（デフォルト: 8080）
 - `URL` - テスト対象URL（Playwrightテスト用）
+- `USERNAME`, `PASSWORD` - 認証が必要な場合のテスト用ユーザー名・パスワード
 
 ## CI/CD
 
